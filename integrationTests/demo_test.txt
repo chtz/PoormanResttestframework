@@ -1,0 +1,42 @@
+post http://localhost:8787/
+<?xml version="1.0"?>
+<foo>
+	<hello>Hi</hello>
+	<hello>Hello</hello>
+</foo>
+end
+
+extract hellos //foo/hello
+
+assertEquals(2, hellos.length)
+
+###
+
+get http://localhost:8787/
+
+extract hellos //foo/hello
+extract worlds //foo/world
+
+assertEquals("HELLOWelt", hellos[0].content + worlds[0].content)
+
+###
+
+post http://localhost:8787/
+<?xml version="1.0"?>
+<foo>
+	<hello>Hallo</hello>
+</foo>
+end
+
+extract hellos //foo/hello
+
+assertEquals(1, hellos.length)
+
+###
+
+get http://localhost:8787/
+
+extract hellos //foo/hello
+extract worlds //foo/world
+
+assertEquals("HALLOWelt", hellos[0].content + worlds[0].content)
