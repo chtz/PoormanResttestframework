@@ -24,7 +24,7 @@ dependencies {
 uploadArchives {
     repositories {
        flatDir {
-           dirs 'repos'
+           dirs '../PoormanResttestframeworkRepository/v1.0'
        }
     }
 }
