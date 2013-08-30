@@ -1,0 +1,30 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceCompatibility = 1.6
+group = 'ch.furthermore.poorman'
+version = '1.0'
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'resttestframework', 'Implementation-Version': version
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+	compile group: 'commons-codec', name: 'commons-codec', version: '1.8'
+    compile group: 'junit', name: 'junit', version: '4.+'
+    compile group: 'org.apache.velocity', name: 'velocity', version: '1.7'
+    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.1.6'
+}
+
+uploadArchives {
+    repositories {
+       flatDir {
+           dirs 'repos'
+       }
+    }
+}
