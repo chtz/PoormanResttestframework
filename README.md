@@ -23,7 +23,7 @@ Sample ./build.gradle
 	}
 	dependencies {
 	    testCompile group: 'junit', name: 'junit', version: '4.+'
-	    testCompile group: 'ch.furthermore.poorman', name: 'PoormanResttestframework', version: '1.0'
+	    testCompile group: 'ch.furthermore.poorman', name: 'PoormanResttestframework', version: '1.0.1'
 	}
 
 
