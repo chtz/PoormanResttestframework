@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 
 group = 'ch.furthermore.poorman'
-version = '1.0'
+version = '1.0.1'
 jar {
     manifest {
         attributes 'Implementation-Title': 'resttestframework', 'Implementation-Version': version
@@ -24,7 +24,7 @@ dependencies {
 uploadArchives {
     repositories {
        flatDir {
-           dirs '../PoormanResttestframeworkRepository/ch.furthermore.poorman//PoormanResttestframework/1.0'
+           dirs 'repository/ch.furthermore.poorman//PoormanResttestframework/1.0.1'
        }
     }
 }

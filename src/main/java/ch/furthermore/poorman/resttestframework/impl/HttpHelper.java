@@ -1,4 +1,4 @@
-package ch.furthermore.poorman.resttestframeworkcom.impl;
+package ch.furthermore.poorman.resttestframework.impl;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -41,7 +41,14 @@ class HttpHelper {
 					}
 				}
 
-				BufferedInputStream in = new BufferedInputStream(conn.getInputStream());
+				BufferedInputStream in;
+				try {
+					in = new BufferedInputStream(conn.getInputStream());
+				}
+				catch (IOException e) { //dirty hack
+					in = new BufferedInputStream(conn.getErrorStream());
+				}
+				
 				try {
 					return readAllBytes(in);
 				}

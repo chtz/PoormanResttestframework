@@ -1,4 +1,4 @@
-package ch.furthermore.poorman.resttestframeworkcom.impl;
+package ch.furthermore.poorman.resttestframework.impl;
 
 import java.io.IOException;
 
@@ -16,6 +16,9 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import ch.furthermore.poorman.resttestframework.impl.GenericNamespaceContext;
+import ch.furthermore.poorman.resttestframework.impl.XmlHelper;
 
 public class HelloWorldRestService extends AbstractHandler
 {
