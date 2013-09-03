@@ -24,7 +24,7 @@ dependencies {
 uploadArchives {
     repositories {
        flatDir {
-           dirs 'repository/ch.furthermore.poorman//PoormanResttestframework/1.0.1'
+           dirs '../PoormanResttestframeworkRepository/ch.furthermore.poorman//PoormanResttestframework/1.0.1'
        }
     }
 }
