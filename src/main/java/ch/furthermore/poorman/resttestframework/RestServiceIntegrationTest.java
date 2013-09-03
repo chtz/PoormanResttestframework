@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import ch.furthermore.poorman.resttestframeworkcom.impl.RestServiceIntegrationTestEngine;
+import ch.furthermore.poorman.resttestframework.impl.RestServiceIntegrationTestEngine;
 
 /**
  * Subclass me. I expect a folder named "./integrationTests" containing test files.

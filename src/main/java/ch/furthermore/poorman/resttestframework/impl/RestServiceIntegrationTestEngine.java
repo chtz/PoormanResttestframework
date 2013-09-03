@@ -1,4 +1,4 @@
-package ch.furthermore.poorman.resttestframeworkcom.impl;
+package ch.furthermore.poorman.resttestframework.impl;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;

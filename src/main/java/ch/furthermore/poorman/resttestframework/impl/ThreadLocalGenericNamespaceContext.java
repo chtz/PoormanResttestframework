@@ -1,4 +1,4 @@
-package ch.furthermore.poorman.resttestframeworkcom.impl;
+package ch.furthermore.poorman.resttestframework.impl;
 
 public class ThreadLocalGenericNamespaceContext {
 	private final static ThreadLocal<GenericNamespaceContext> genericNamespaceContext = new ThreadLocal<GenericNamespaceContext>();
