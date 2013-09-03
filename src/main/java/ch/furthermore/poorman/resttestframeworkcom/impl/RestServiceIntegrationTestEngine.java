@@ -61,17 +61,15 @@ public class RestServiceIntegrationTestEngine {
 					try {
 						byte[] response = httpHelper.httpRequest(cmd, url, xml, user, pass);
 						
-						if (!isDelete) {
-							variables.put("response", new String(response));
+						variables.put("response", new String(response));
+						
+						try {
+							lastResponseDoc = xmlHelper.createDocument(response);
 							
-							try {
-								lastResponseDoc = xmlHelper.createDocument(response);
-								
-								variables.put("xml", lastResponseDoc);
-							}
-							catch (Exception e) {
-								variables.put("xml", null);
-							}
+							variables.put("xml", lastResponseDoc);
+						}
+						catch (Exception e) {
+							variables.put("xml", null);
 						}
 					}
 					catch (Exception e) {
