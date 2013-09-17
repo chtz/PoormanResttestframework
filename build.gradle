@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 
 group = 'ch.furthermore.poorman'
-version = '1.0.1'
+version = '1.0.2'
 jar {
     manifest {
         attributes 'Implementation-Title': 'resttestframework', 'Implementation-Version': version
@@ -18,13 +18,15 @@ dependencies {
     compile group: 'junit', name: 'junit', version: '4.+'
     compile group: 'org.apache.velocity', name: 'velocity', version: '1.7'
     compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.1.6'
+    compile 'com.jayway.jsonpath:json-path:0.8.1'
+            
     testCompile group: 'org.eclipse.jetty', name: 'jetty-server', version: '7.2.0.v20101020'
 }
 
 uploadArchives {
     repositories {
        flatDir {
-           dirs 'repository/ch.furthermore.poorman//PoormanResttestframework/1.0.1'
+           dirs 'repository/ch.furthermore.poorman//PoormanResttestframework/1.0.2'
        }
     }
 }

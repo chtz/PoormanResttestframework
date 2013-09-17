@@ -16,6 +16,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import com.jayway.jsonpath.JsonPath;
+
 /**
  * This class is not thread-safe
  */
@@ -43,6 +45,27 @@ public class RestServiceIntegrationTestEngine {
 				lineTokenizer = new StringTokenizer(line, " \t");
 				
 				String cmd = nextOptionalToken();
+				
+				boolean jsonRequest = false;
+				boolean jsonResponse = false;
+				if ("json".equals(cmd)) {
+					cmd = nextOptionalToken();
+					
+					jsonRequest = true;
+					jsonResponse = true;
+					
+					if ("onlyrequest".equals(cmd)) {
+						jsonResponse = false;
+						
+						cmd = nextOptionalToken();
+					}
+					else if ("onlyresponse".equals(cmd)) {
+						jsonRequest = false;
+						
+						cmd = nextOptionalToken();
+					}
+				}
+				
 				boolean isDelete = "delete".equals(cmd);
 				boolean isGetOrDelete = "get".equals(cmd) || isDelete;
 				boolean isPostOrPut = "put".equals(cmd) || "post".equals(cmd);
@@ -59,17 +82,21 @@ public class RestServiceIntegrationTestEngine {
 					
 					lastResponseDoc = null;
 					try {
-						byte[] response = httpHelper.httpRequest(cmd, url, xml, user, pass);
+						byte[] response = httpHelper.httpRequest(cmd, url, xml, user, pass, jsonRequest, jsonResponse);
 						
 						variables.put("response", new String(response));
 						
-						try {
-							lastResponseDoc = xmlHelper.createDocument(response);
-							
-							variables.put("xml", lastResponseDoc);
-						}
-						catch (Exception e) {
-							variables.put("xml", null);
+						if (   response.length >= 5 && response[0] == '<' && response[1] == '?' && response[2] == 'x' && response[3] == 'm' && response[4] == 'l'
+						    || response.length >= 5 && response[0] == '<' && response[1] == 's' && response[2] == 'o' && response[3] == 'a' && response[4] == 'p') 
+						{
+							try {
+								lastResponseDoc = xmlHelper.createDocument(response);
+								
+								variables.put("xml", lastResponseDoc);
+							}
+							catch (Exception e) {
+								variables.put("xml", null);
+							}
 						}
 					}
 					catch (Exception e) {
@@ -117,6 +144,7 @@ public class RestServiceIntegrationTestEngine {
 							public void run() {
 								groovyHelper.evaluateGroovyScript(line, variables, 
 										"import static " + Assert.class.getCanonicalName() + ".*\n"
+										+ "import static " + JsonPath.class.getCanonicalName() + ".*\n"
 										+ "import static " + ThreadLocalGenericNamespaceContext.class.getCanonicalName() + ".*\n" 
 										+ groovyScript);
 							}

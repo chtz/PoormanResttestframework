@@ -12,7 +12,7 @@ import java.net.URL;
 import org.apache.commons.codec.binary.Base64;
 
 class HttpHelper {
-	public byte[] httpRequest(String verb, String urlString, String data, String optUser, String optPass) { 
+	public byte[] httpRequest(String verb, String urlString, String data, String optUser, String optPass, boolean jsonRequest, boolean jsonResponse) { 
 		try {
 			URL url = new URL(urlString);
 			
@@ -28,8 +28,8 @@ class HttpHelper {
 					addBasicAuthHeader(conn, optUser, optPass);
 				}
 				
-				conn.setRequestProperty("Content-Type", "application/xml");
-				conn.setRequestProperty("Accept", "application/xml");
+				conn.setRequestProperty("Content-Type", jsonRequest ? "application/json" : "application/xml");
+				conn.setRequestProperty("Accept", jsonResponse ? "application/json" : "application/xml");
 				
 				if (data != null) {
 					DataOutputStream os = new DataOutputStream(new BufferedOutputStream(conn.getOutputStream()));
