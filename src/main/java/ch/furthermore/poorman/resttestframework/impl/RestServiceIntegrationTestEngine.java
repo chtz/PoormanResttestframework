@@ -5,12 +5,14 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.junit.Assert;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -34,8 +36,35 @@ public class RestServiceIntegrationTestEngine {
 	private int lineNumber = 0;
 	private StringTokenizer lineTokenizer;
 	private Document lastResponseDoc = null;
+
+	private PrintWriter audit;
+	private String lastTitle;
 	
-	public void executeTestplan(File testplanFile) throws Exception {
+	public void executeTestplan(File auditDirectory, File testplanFile) throws Exception {
+		audit = auditDirectory.exists() ? new PrintWriter(new File(auditDirectory, testplanFile.getName() + ".html")) : null;
+		try {
+			audit("<html><head /><body>");
+			executeTestplan(testplanFile);
+		}
+		finally {
+			audit("</body></html>");
+			if (audit != null) {
+				audit.close();
+			}
+		}
+	}
+	
+	private void audit(String... ss) {
+		if (audit != null) {
+			for (String s : ss) {
+				audit.println(s);
+			}
+		}
+	}
+
+	private void executeTestplan(File testplanFile) throws Exception {
+		audit("<h1>Scenario</h1><p>", testplanFile.getName(), "</p>");
+		
 		in = new DataInputStream(new BufferedInputStream(new FileInputStream(testplanFile)));
 		try {
 			for (nextLine(); hasLine(); nextLine()) {
@@ -74,28 +103,64 @@ public class RestServiceIntegrationTestEngine {
 					String url = nextTemplateToken();
 					String user = nextOptionalTemplateToken();
 					String pass = nextOptionalTemplateToken();
+
+					if (lastTitle != null) { 
+						audit("<h2>Next Step</h2><p>", lastTitle, "</p>");
+						
+						lastTitle = null;
+					}
+					
+					audit("<h2>Action</h2>", "<p>", cmd, " ", url, "</p>");
+					
 					
 					String xml = null;
 					if (isPostOrPut) {
 						xml = replacePlaceholders(readDataUntil("end"));
+						
+						if (isXml(xml.getBytes())) {
+							audit("<h2>Request Data</h2><p><pre>", escapeHtml(xmlHelper.xmlToString(xmlHelper.createDocument(xml.getBytes()))), "</pre></p>");
+						}
+						else {
+							String prettyJson = JsonHelper.prettyPrint(xml);
+							if (prettyJson != null) {
+								audit("<h2>Request JSON Data</h2><p><pre>", escapeHtml(prettyJson), "</pre></p>");
+							}
+							else {
+								audit("<h2>Request Raw Data</h2><p><pre>", escapeHtml(xml), "</pre></p>");
+							}
+						}
 					}
 					
 					lastResponseDoc = null;
 					try {
 						byte[] response = httpHelper.httpRequest(cmd, url, xml, user, pass, jsonRequest, jsonResponse);
 						
-						variables.put("response", new String(response));
-						
-						if (   response.length >= 5 && response[0] == '<' && response[1] == '?' && response[2] == 'x' && response[3] == 'm' && response[4] == 'l'
-						    || response.length >= 5 && response[0] == '<' && response[1] == 's' && response[2] == 'o' && response[3] == 'a' && response[4] == 'p') 
+						String responseString = new String(response);
+						variables.put("response", responseString);
+
+						boolean responseAuditWritten = false;
+						if (isXml(response)) 
 						{
 							try {
 								lastResponseDoc = xmlHelper.createDocument(response);
 								
 								variables.put("xml", lastResponseDoc);
+								
+								audit("<h2>Response Data</h2><p><pre>", escapeHtml(xmlHelper.xmlToString(lastResponseDoc)), "</pre></p>");
+								responseAuditWritten = true;
 							}
 							catch (Exception e) {
 								variables.put("xml", null);
+							}
+						}
+						
+						if (!responseAuditWritten) {
+							String prettyJson = JsonHelper.prettyPrint(responseString);
+							if (prettyJson != null) {
+								audit("<h2>Response JSON Data</h2><p><pre>", escapeHtml(prettyJson), "</pre></p>");
+							}
+							else {
+								audit("<h2>Response Raw Data</h2><p><pre>", escapeHtml(responseString), "</pre></p>");
 							}
 						}
 					}
@@ -127,7 +192,10 @@ public class RestServiceIntegrationTestEngine {
 					
 					variables.put(variable, elementValues.toArray());
 				}
-				else if (cmd.trim().isEmpty() || cmd.startsWith("#") || cmd.startsWith("//")) {
+				else if (cmd.startsWith("#")) {
+					lastTitle = line.substring(1);	
+				}
+				else if (cmd.trim().isEmpty() || cmd.startsWith("//")) {
 					//ignore
 				}
 				else {
@@ -159,6 +227,15 @@ public class RestServiceIntegrationTestEngine {
 		finally {
 			in.close();
 		}
+	}
+
+	private boolean isXml(byte[] response) { //TODO improve ;-)
+		return response.length >= 5 && response[0] == '<' && response[1] == '?' && response[2] == 'x' && response[3] == 'm' && response[4] == 'l'
+		    || response.length >= 5 && response[0] == '<' && response[1] == 's' && response[2] == 'o' && response[3] == 'a' && response[4] == 'p';
+	}
+
+	private String escapeHtml(String s) {
+		return StringEscapeUtils.escapeHtml(s);
 	}
 
 	private String replacePlaceholders(String template) {
